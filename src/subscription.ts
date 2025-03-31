@@ -8,27 +8,28 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
+    const re = new RegExp("#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)")
     const ops = await getOpsByType(evt)
-
-    // This logs the text of every post off the firehose.
-    // Just for fun :)
-    // Delete before actually using
-    for (const post of ops.posts.creates) {
-      console.log(post.record.text)
-    }
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
-        // only alf-related posts
-        return create.record.text.toLowerCase().includes('alf')
+        return re.test(create.record.text.toLowerCase())
       })
       .map((create) => {
-        // map alf-related posts to a db row
+        // A post might have multiple tags in it and we should really
+        // iterate over all matches using .matchAll but that would require
+        // departing from the structure of the example in a way that I don't
+        // know enough JavaScript to do.
+        // We do know for certain at this point that the text did match the
+        // regexp, so it is safe to directly pull the matching subexpression
+        // out when we redo the match with capture groups enabled.
+        const subexp = create.record.text.toLowerCase().match(re)[1]
         return {
           uri: create.uri,
           cid: create.cid,
           indexedAt: new Date().toISOString(),
+          whichFeed: subexp,
         }
       })
 
