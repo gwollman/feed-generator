@@ -24,7 +24,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // We do know for certain at this point that the text did match the
         // regexp, so it is safe to directly pull the matching subexpression
         // out when we redo the match with capture groups enabled.
-        const subexp = create.record.text.toLowerCase().match(re)[1]
+        const subexp = create.record.text.toLowerCase().match(re)![1]
         return {
           uri: create.uri,
           cid: create.cid,
