@@ -8,12 +8,23 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
+    console.log("event batch")
     const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/iu
     const ops = await getOpsByType(evt)
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
+	const textlc = create.record.text.toLowerCase()
+	if (textlc.includes('#worldsynchro')) {
+	    console.log('got #worldsynchro')
+	}
+	if (textlc.includes('#worldfigure')) {
+	    console.log('got #worldfigure')
+	}
+	if (textlc.includes('#jgpfigure')) {
+	    console.log('got #jgpfigure')
+	}
         return re.test(create.record.text)
       })
       .map((create) => {
