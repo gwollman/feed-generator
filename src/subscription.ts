@@ -8,13 +8,13 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
-    const re = new RegExp("#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)")
+    const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/iu
     const ops = await getOpsByType(evt)
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
-        return re.test(create.record.text.toLowerCase())
+        return re.test(create.record.text)
       })
       .map((create) => {
         // A post might have multiple tags in it and we should really
@@ -24,12 +24,12 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // We do know for certain at this point that the text did match the
         // regexp, so it is safe to directly pull the matching subexpression
         // out when we redo the match with capture groups enabled.
-        const subexp = create.record.text.toLowerCase().match(re)![1]
+        const subexp = create.record.text.match(re)![1]
         return {
           uri: create.uri,
           cid: create.cid,
           indexedAt: new Date().toISOString(),
-          whichFeed: subexp,
+          whichFeed: subexp!.toLowerCase(),
         }
       })
 
