@@ -8,13 +8,14 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
-    console.log("event batch")
     const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/iu
     const ops = await getOpsByType(evt)
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
+	console.log(create.record.text)
+
 	const textlc = create.record.text.toLowerCase()
 	if (textlc.includes('#worldsynchro')) {
 	    console.log('got #worldsynchro')
@@ -37,7 +38,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // out when we redo the match with capture groups enabled.
         const subexp = create.record.text.match(re)![1]
 	// See whether we're even matching the stuff we expect...
-	console.log(create.record.text)
+	console.log(subexp)
         return {
           uri: create.uri,
           cid: create.cid,
