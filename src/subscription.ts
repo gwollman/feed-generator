@@ -14,8 +14,6 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
-	console.log(create.record.text)
-
 	const textlc = create.record.text.toLowerCase()
 	if (textlc.includes('#worldsynchro')) {
 	    console.log('got #worldsynchro')
