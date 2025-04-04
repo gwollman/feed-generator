@@ -42,8 +42,8 @@ export abstract class FirehoseSubscriptionBase {
         this.handleEvent(evt).catch((err) => {
           console.error('repo subscription could not handle message', err)
         })
-        // update stored cursor every 20 events or so
-        if (isCommit(evt) && evt.seq % 20 === 0) {
+        // update stored cursor every 200 events or so
+        if (isCommit(evt) && evt.seq % 200 === 0) {
           await this.updateCursor(evt.seq)
         }
       }
