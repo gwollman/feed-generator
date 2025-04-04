@@ -8,7 +8,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
-    const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/iu
+    const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/i
     const ops = await getOpsByType(evt)
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
