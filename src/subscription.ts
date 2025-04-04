@@ -4,27 +4,36 @@ import {
 } from './lexicon/types/com/atproto/sync/subscribeRepos'
 import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
 
+const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/
+var postsCreated = 0
+
 export class FirehoseSubscription extends FirehoseSubscriptionBase {
   async handleEvent(evt: RepoEvent) {
     if (!isCommit(evt)) return
 
-    const re = /#(worldfigure|worldsynchro|jgpfigure|gpfigure|eurofigure)/iu
     const ops = await getOpsByType(evt)
 
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
       .filter((create) => {
+	postsCreated = postsCreated + 1
+	if (postsCreated % 1000 == 0) {
+	    console.log(postsCreated)
+	}
 	const textlc = create.record.text.toLowerCase()
 	if (textlc.includes('#worldsynchro')) {
 	    console.log('got #worldsynchro')
+	    return true
 	}
 	if (textlc.includes('#worldfigure')) {
 	    console.log('got #worldfigure')
+	    return true
 	}
 	if (textlc.includes('#jgpfigure')) {
 	    console.log('got #jgpfigure')
+	    return true
 	}
-        return re.test(create.record.text)
+        return re.test(textlc)
       })
       .map((create) => {
         // A post might have multiple tags in it and we should really
@@ -34,14 +43,14 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         // We do know for certain at this point that the text did match the
         // regexp, so it is safe to directly pull the matching subexpression
         // out when we redo the match with capture groups enabled.
-        const subexp = create.record.text.match(re)![1]
+        const subexp = create.record.text.toLowerCase().match(re)![1]
 	// See whether we're even matching the stuff we expect...
 	console.log(subexp)
         return {
           uri: create.uri,
           cid: create.cid,
           indexedAt: new Date().toISOString(),
-          whichFeed: subexp!.toLowerCase(),
+          whichFeed: subexp,
         }
       })
 
