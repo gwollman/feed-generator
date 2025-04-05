@@ -79,8 +79,6 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
   const opsByType: OperationsByType = {
     posts: { creates: [], deletes: [] },
     reposts: { creates: [], deletes: [] },
-    likes: { creates: [], deletes: [] },
-    follows: { creates: [], deletes: [] },
   }
 
   for (const op of evt.ops) {
@@ -99,10 +97,6 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
         opsByType.posts.creates.push({ record, ...create })
       } else if (collection === ids.AppBskyFeedRepost && isRepost(record)) {
         opsByType.reposts.creates.push({ record, ...create })
-      } else if (collection === ids.AppBskyFeedLike && isLike(record)) {
-        opsByType.likes.creates.push({ record, ...create })
-      } else if (collection === ids.AppBskyGraphFollow && isFollow(record)) {
-        opsByType.follows.creates.push({ record, ...create })
       }
     }
 
@@ -111,10 +105,6 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
         opsByType.posts.deletes.push({ uri })
       } else if (collection === ids.AppBskyFeedRepost) {
         opsByType.reposts.deletes.push({ uri })
-      } else if (collection === ids.AppBskyFeedLike) {
-        opsByType.likes.deletes.push({ uri })
-      } else if (collection === ids.AppBskyGraphFollow) {
-        opsByType.follows.deletes.push({ uri })
       }
     }
   }
@@ -125,8 +115,6 @@ export const getOpsByType = async (evt: Commit): Promise<OperationsByType> => {
 type OperationsByType = {
   posts: Operations<PostRecord>
   reposts: Operations<RepostRecord>
-  likes: Operations<LikeRecord>
-  follows: Operations<FollowRecord>
 }
 
 type Operations<T = Record<string, unknown>> = {
